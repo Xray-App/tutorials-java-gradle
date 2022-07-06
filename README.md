@@ -10,7 +10,7 @@ Besides, there's also an enhanced example that uses specific extensions for Xray
 
 - [junit4_basic](junit4_basic): some tests implementedusing JUnit 4.13.x, generating a "standard" JUnit XML report
 - [junit5_basic](junit5_basic): some tests implemented using JUnit 5, generating a "standard" JUnit XML report
-- [junit5_enhanced](junit5_enhanced): some tests implemented using JUnit 5, using annotations and other capabilities from [xray-junit-extensions](https://github.com/Xray-App/xray-junit-extensions), generating a enhanced JUnit XML report that Xray can process
+- [junit5_enhanced](junit5_enhanced): some tests implemented using JUnit 5, using annotations and other capabilities from [xray-junit-extensions](https://github.com/Xray-App/xray-junit-extensions), generating an enhanced JUnit XML report that Xray can process
 - [testng_basic](testng_basic): some tests implemented using TestNG 7.6.x, generating a "standard" TestNG XML report
 - [testng_enhanced](testng_enhanced): some tests implemented using TestNG 7.6.x, using annotations and other capabilities from [xray-testng-extensions](https://github.com/bitcoder/xray-testng-extensions), generating a enhanced TestNG XML report that Xray can process
 
