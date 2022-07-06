@@ -1,0 +1,6 @@
+rootProject.name = 'basic-multiproject'
+include 'junit4_basic'
+include 'junit5_basic'
+include 'junit5_enhanced'
+include 'testng_basic'
+include 'testng_enhanced'

@@ -1,0 +1,16 @@
+# Jira server/DC specifics
+jiraBaseUrl=https://jiraserver.local
+jiraUsername=someuser
+jiraPassword=somepass
+
+# Jira Cloud specifics
+clientId=DA2258616A5900000000000000000000
+clientSecret=5bae1aa5b49e5d263781da54ba55000000000000000000000000000000000000
+
+reportFormat=junit
+projectKey=CALC
+version=v1.0
+revision=123
+testPlanKey=CALC-726
+testExecKey=
+testEnvironment=

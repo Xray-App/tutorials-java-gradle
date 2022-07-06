@@ -1,0 +1,146 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    archiveBaseName = 'tutorial-gradle-junit5-basic'
+    archiveVersion =  '0.1.0'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+test {
+    useJUnitPlatform()
+    reports {
+	    // destination = file('build/test-results/folder')
+        junitXml.required = true
+        html.required = false
+    }
+    ignoreFailures = true
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testImplementation 'org.hamcrest:hamcrest-library:2.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    resolutionStrategy.cacheDynamicVersionsFor 0, 'seconds'
+}
+
+task importJUnitResultsToXrayDC(type: Exec) {
+	description 'Imports Junit test results to Xray Test Management for Jira DC.'
+	dependsOn 'test' 
+
+    // the following variables can be defined locally or in gradle.properties
+    //  - jiraBaseUrl, jiraUsername, jiraPassword
+    //  - reportFormat, projectKey version, revision, testPlanKey, testExecKey, testEnvironment
+
+	def reportFile = "build/test-results/test/TEST-app.getxray.java.CalcTest.xml"
+
+	def url = "${jiraBaseUrl}/rest/raven/2.0/import/execution/${reportFormat}?"
+	if (projectKey?.trim()) {
+		url += "&projectKey=${projectKey}"
+	}
+	if (version?.trim()) {
+		url += "&fixVersion=${version}"
+	}
+	if (revision?.trim()) {
+		url += "&revision=${revision}"
+	}
+	if (testPlanKey?.trim()) {
+		url += "&testPlanKey=${testPlanKey}"
+	}
+	if (testExecKey?.trim()) {
+		url += "&testExecKey=${testExecKey}"
+	}
+	if (testEnvironment?.trim()) {
+		url += "&testEnvironments=${testEnvironment}"
+	}
+
+    commandLine 'curl', '--fail-with-body', '-H','Content-Type: multipart/form-data', '-u', "${jiraUsername}:${jiraPassword}", '-F', "file=@${reportFile}", url
+
+    //store the output instead of printing to the console:
+    standardOutput = new ByteArrayOutputStream()
+    ignoreExitValue = false //true
+
+    doLast {
+            if (execResult.getExitValue() != 0) {
+                    println "ERROR: problem importing results to Xray"
+            } else {
+                    println "Results imported to Xray!"
+            }
+            println  standardOutput.toString()
+    }
+}
+
+task importJunitResultsToXrayCloud() {
+	description 'Imports Junit test results to Xray Test Management for Jira Cloud.'
+	dependsOn 'test' 
+
+    def xrayApiBaseUrl = 'https://xray.cloud.getxray.app/api/v2'
+    // the following variables can be defined locally or in gradle.properties
+    //  - clientId, clientSecret
+    //  - reportFormat, projectKey version, revision, testPlanKey, testExecKey, testEnvironment
+
+	def reportFile = "build/test-results/test/TEST-app.getxray.java.CalcTest.xml"
+
+    doLast {
+        new ByteArrayOutputStream().withStream { os ->
+            def result = exec {
+                ignoreExitValue = true
+                // commandLine 'curl', '--silent', '--fail-with-body', '-H','Content-Type: application/json', '-X','POST', '--data', '@cloud_auth.json', "${xrayApiBaseUrl}/authenticate"
+                commandLine 'curl', '--silent', '--fail-with-body', '-H','Content-Type: application/json', '-X','POST', '--data', "{ \"client_id\": \"${clientId}\",\"client_secret\": \"${clientSecret}\" }", "${xrayApiBaseUrl}/authenticate"
+                standardOutput = os
+                }
+                if (result.getExitValue() != 0) {
+                        println "ERROR: problem authenticating"
+                } else {
+                        def token = os.toString().replaceAll("\"","")
+                        println "Authenticated with Xray!"
+
+                            new ByteArrayOutputStream().withStream { os2 ->
+                                def result2 = exec {
+                                ignoreExitValue = true
+
+                                def url = "${xrayApiBaseUrl}/import/execution/${reportFormat}?"
+                                if (projectKey?.trim()) {
+                                    url += "&projectKey=${projectKey}"
+                                }
+                                if (version?.trim()) {
+                                    url += "&fixVersion=${version}"
+                                }
+                                if (revision?.trim()) {
+                                    url += "&revision=${revision}"
+                                }
+                                if (testPlanKey?.trim()) {
+                                    url += "&testPlanKey=${testPlanKey}"
+                                }
+                                if (testExecKey?.trim()) {
+                                    url += "&testExecKey=${testExecKey}"
+                                }
+                                if (testEnvironment?.trim()) {
+                                    url += "&testEnvironments=${testEnvironment}"
+                                }
+
+                                commandLine 'curl', '--silent', '--fail-with-body', '-H','Content-Type: application/xml', '-X','POST', '-H', "Authorization: Bearer ${token}", '--data', "@${reportFile}", url
+                                standardOutput = os2
+                                }
+                                if (result2.getExitValue() != 0) {
+                                        println "ERROR: problem importing results to Xray"
+                                        println os2.toString()
+                                } else {
+                                        println "Resuls imported to Xray!"
+                                        println os2.toString()
+                                }
+                        }
+                }
+        }
+
+    }
+}

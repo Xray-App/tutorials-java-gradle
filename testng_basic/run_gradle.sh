@@ -1,0 +1,2 @@
+gradle clean compileJava test importTestNGResultsToXrayDC
+#gradle clean compileJava test importTestNGResultsToXrayCloud

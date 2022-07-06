@@ -1,0 +1,170 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    archiveBaseName = 'tutorial-gradle-testng-basic'
+    archiveVersion =  '0.1.0'
+}
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+test {
+    useTestNG()
+    reports {
+	    // destination = file('build/test-results/folder')
+        junitXml.required = false
+        html.required = false
+    }
+    ignoreFailures = true
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url = uri('https://maven.xpand-it.com/artifactory/releases')
+    }
+
+    maven {
+        url = uri('https://maven.pkg.github.com/bitcoder/*')
+    }
+
+    maven {
+        url = uri('https://repo.maven.apache.org/maven2/')
+    }
+}
+
+dependencies {
+    testImplementation 'org.testng:testng:7.6.1'
+    testImplementation 'com.xpandit.xray:xray-testng-extensions:1.1.0'
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    resolutionStrategy.cacheDynamicVersionsFor 0, 'seconds'
+}
+
+task testngTest(type: JavaExec, dependsOn: [classes]) {
+    group 'Verification'
+    description 'Run TestNG tests'
+    mainClass = 'org.testng.TestNG'
+    args('testng.xml', '-reporter',
+            'org.testng.reporters.XMLReporter:generateTestResultAttributes=true,generateGroupsAttribute=true'
+    )
+    classpath = sourceSets.test.runtimeClasspath
+}
+
+task importTestNGResultsToXrayDC(type: Exec) {
+	description 'Imports TestNG test results to Xray Test Management for Jira DC.'
+	dependsOn 'testngTest' 
+
+    // the following variables can be defined locally or in gradle.properties
+    //  - jiraBaseUrl, jiraUsername, jiraPassword
+    //  - reportFormat, projectKey version, revision, testPlanKey, testExecKey, testEnvironment
+
+	def reportFile = "test-output/testng-results.xml"
+
+	def url = "${jiraBaseUrl}/rest/raven/2.0/import/execution/${reportFormat}?"
+	if (projectKey?.trim()) {
+		url += "&projectKey=${projectKey}"
+	}
+	if (version?.trim()) {
+		url += "&fixVersion=${version}"
+	}
+	if (revision?.trim()) {
+		url += "&revision=${revision}"
+	}
+	if (testPlanKey?.trim()) {
+		url += "&testPlanKey=${testPlanKey}"
+	}
+	if (testExecKey?.trim()) {
+		url += "&testExecKey=${testExecKey}"
+	}
+	if (testEnvironment?.trim()) {
+		url += "&testEnvironments=${testEnvironment}"
+	}
+
+    commandLine 'curl', '--fail-with-body', '-H','Content-Type: multipart/form-data', '-u', "${jiraUsername}:${jiraPassword}", '-F', "file=@${reportFile}", url
+
+    //store the output instead of printing to the console:
+    standardOutput = new ByteArrayOutputStream()
+    ignoreExitValue = false
+
+    doLast {
+            if (execResult.getExitValue() != 0) {
+                    println "ERROR: problem importing results to Xray"
+            } else {
+                    println "Results imported to Xray!"
+            }
+            println  standardOutput.toString()
+    }
+}
+
+task importTestNGResultsToXrayCloud() {
+	description 'Imports TestNG test results to Xray Test Management for Jira Cloud.'
+	dependsOn 'testngTest' 
+
+    def xrayApiBaseUrl = 'https://xray.cloud.getxray.app/api/v2'
+    // the following variables can be defined locally or in gradle.properties
+    //  - clientId, clientSecret
+    //  - reportFormat, projectKey version, revision, testPlanKey, testExecKey, testEnvironment
+
+	def reportFile = "test-output/testng-results.xml"
+
+    doLast {
+        new ByteArrayOutputStream().withStream { os ->
+            def result = exec {
+                ignoreExitValue = true
+                // commandLine 'curl', '--silent', '--fail-with-body', '-H','Content-Type: application/json', '-X','POST', '--data', '@cloud_auth.json', "${xrayApiBaseUrl}/authenticate"
+                commandLine 'curl', '--silent', '--fail-with-body', '-H','Content-Type: application/json', '-X','POST', '--data', "{ \"client_id\": \"${clientId}\",\"client_secret\": \"${clientSecret}\" }", "${xrayApiBaseUrl}/authenticate"
+                standardOutput = os
+                }
+                if (result.getExitValue() != 0) {
+                        println "ERROR: problem authenticating"
+                } else {
+                        def token = os.toString().replaceAll("\"","")
+                        println "Authenticated with Xray!"
+
+                            new ByteArrayOutputStream().withStream { os2 ->
+                                def result2 = exec {
+                                ignoreExitValue = true
+
+                                def url = "${xrayApiBaseUrl}/import/execution/${reportFormat}?"
+                                if (projectKey?.trim()) {
+                                    url += "&projectKey=${projectKey}"
+                                }
+                                if (version?.trim()) {
+                                    url += "&fixVersion=${version}"
+                                }
+                                if (revision?.trim()) {
+                                    url += "&revision=${revision}"
+                                }
+                                if (testPlanKey?.trim()) {
+                                    url += "&testPlanKey=${testPlanKey}"
+                                }
+                                if (testExecKey?.trim()) {
+                                    url += "&testExecKey=${testExecKey}"
+                                }
+                                if (testEnvironment?.trim()) {
+                                    url += "&testEnvironments=${testEnvironment}"
+                                }
+
+                                commandLine 'curl', '--silent', '--fail-with-body', '-H','Content-Type: application/xml', '-X','POST', '-H', "Authorization: Bearer ${token}", '--data', "@${reportFile}", url
+                                standardOutput = os2
+                                }
+                                if (result2.getExitValue() != 0) {
+                                        println "ERROR: problem importing results to Xray"
+                                        println os2.toString()
+                                } else {
+                                        println "Resuls imported to Xray!"
+                                        println os2.toString()
+                                }
+                        }
+                }
+        }
+
+    }
+}
