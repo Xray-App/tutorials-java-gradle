@@ -28,10 +28,21 @@ To generate the enhanced TestNG XML report that Xray can process (as shown on [t
 gradle clean compileJava testngTest
 ```
 
-## Submitting results to Jira
+## Submitting results to Jira using Xray
 
-Results can be submitted to Jira so that they can be shared with the team and their impacts be easily analysed.
-This can be achieved using [Xray Test Management](https://www.getxray.app/) as shown in further detail in this [page]().
+Results can be submitted to Jira so that they can be shared with the team and their impacts be easily analysed using Xray Test Management.
+
+For Xray on Jira Cloud, depending on the testing framework used, one of the following tasks is available in these examples:
+```
+gradle importJunitResultsToXrayCloud
+gradle importTestNGResultsToXrayCloud
+```
+
+For Xray on Jira server/datacenter, depending on the testing framework used, one of the following tasks is available in these examples:
+```
+gradle importJunitResultsToXrayDC
+gradle importTestNGResultsToXrayDC
+```
 
 ## Contact
 
