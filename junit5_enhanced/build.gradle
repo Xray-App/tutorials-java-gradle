@@ -26,7 +26,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testImplementation 'org.hamcrest:hamcrest-library:2.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-    testImplementation 'app.getxray:xray-junit-extensions:0.6.0'
+    testImplementation 'app.getxray:xray-junit-extensions:0.6.1'
 }
 
 configurations.all {

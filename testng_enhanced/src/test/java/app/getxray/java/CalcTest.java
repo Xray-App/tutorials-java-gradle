@@ -25,7 +25,7 @@ public class CalcTest {
     }
 
     @Test
-    @Xray(requirement = "CALC-740", test = "739")
+    @Xray(requirement = "CALC-740", test = "CALC-739")
     public void CanAddNumbers()
     {
         assertEquals(Calculator.add(1, 1), 2);
@@ -50,6 +50,7 @@ public class CalcTest {
         assertEquals(Calculator.multiply(100, 5), 500);
     }
 
+    @Test
     public void CanDivide()
     {
         assertEquals(Calculator.divide(1, 1), 1);

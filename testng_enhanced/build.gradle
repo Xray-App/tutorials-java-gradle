@@ -50,6 +50,7 @@ configurations.all {
 task testngTest(type: JavaExec, dependsOn: [classes]) {
     group 'Verification'
     description 'Run TestNG tests'
+    ignoreExitValue = true // to not throw exception if test fails
     mainClass = 'org.testng.TestNG'
     args('testng.xml', '-reporter',
             'org.testng.reporters.XMLReporter:generateTestResultAttributes=true,generateGroupsAttribute=true'

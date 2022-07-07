@@ -46,6 +46,7 @@ public class CalcTest {
         assertEquals(Calculator.multiply(100, 5), 500);
     }
 
+    @Test
     public void CanDivide()
     {
         assertEquals(Calculator.divide(1, 1), 1);

@@ -21,6 +21,7 @@ public class CalcTest {
 
     }
 
+    @Test
     public void CanAddNumbers()
     {
         assertThat(Calculator.add(1, 1), is(2));
@@ -43,6 +44,7 @@ public class CalcTest {
         assertThat(Calculator.multiply(100, 5), is(500));
     }
 
+    @Test
     public void CanDivide()
     {
         assertThat(Calculator.divide(1, 1), is(1));

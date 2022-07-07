@@ -13,11 +13,13 @@ sourceCompatibility = 11
 targetCompatibility = 11
 
 test {
-    useTestNG()
+    useTestNG() {
+	 // report generation delegated to TestNG library:
+         useDefaultListeners = true
+    }
     reports {
-	    // destination = file('build/test-results/folder')
-        junitXml.required = false
-        html.required = false
+         junitXml.required = false
+         html.required = false
     }
     ignoreFailures = true
 }
@@ -39,7 +41,7 @@ task importTestNGResultsToXrayDC(type: Exec) {
     //  - jiraBaseUrl, jiraUsername, jiraPassword
     //  - reportFormat, projectKey version, revision, testPlanKey, testExecKey, testEnvironment
 
-	def reportFile = "test-output/testng-results.xml"
+	def reportFile = "build/reports/tests/test/testng-results.xml"
 
 	def url = "${jiraBaseUrl}/rest/raven/2.0/import/execution/${reportFormat}?"
 	if (projectKey?.trim()) {
@@ -86,7 +88,7 @@ task importTestNGResultsToXrayCloud() {
     //  - clientId, clientSecret
     //  - reportFormat, projectKey version, revision, testPlanKey, testExecKey, testEnvironment
 
-	def reportFile = "test-output/testng-results.xml"
+	def reportFile = "build/reports/tests/test/testng-results.xml"
 
     doLast {
         new ByteArrayOutputStream().withStream { os ->
