@@ -10,7 +10,7 @@ import org.testng.reporters.XMLReporter;
 import org.testng.ITestResult;
 import static org.testng.Assert.*;
 //import static org.testng.AssertJUnit.*;
-import com.xpandit.testng.annotations.Xray;
+import app.getxray.xray.testng.annotations.*;
 
 public class CalcTest {
 
@@ -25,7 +25,8 @@ public class CalcTest {
     }
 
     @Test
-    @Xray(requirement = "CALC-740", test = "CALC-739")
+    @XrayTest(key = "CALC-739")
+    @Requirement(key = "CALC-740")
     public void CanAddNumbers()
     {
         assertEquals(Calculator.add(1, 1), 2);
@@ -33,7 +34,7 @@ public class CalcTest {
     }
 
     @Test
-    @Xray(requirement = "CALC-740")
+    @Requirement(key = "CALC-740")
     public void CanSubtract()
     {
         assertEquals(Calculator.subtract(1, 1), 0);
@@ -42,7 +43,7 @@ public class CalcTest {
     }
 
     @Test
-    @Xray(requirement = "CALC-740")
+    @Requirement(key = "CALC-740")
     public void CanMultiply()
     {
         assertEquals(Calculator.multiply(1, 1), 1);
