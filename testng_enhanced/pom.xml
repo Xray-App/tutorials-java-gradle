@@ -52,9 +52,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.xpandit.xray</groupId>
+            <groupId>app.getxray</groupId>
             <artifactId>xray-testng-extensions</artifactId>
-            <version>1.1.0</version>
+            <version>0.1.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -66,24 +66,5 @@
             </plugin>
         </plugins>
     </reporting>
-
-    <repositories>
-        <repository>
-                <id>xpandit</id>
-                <name>xpand-releases</name>
-                <url>https://maven.xpand-it.com/artifactory/releases</url>
-                <releases>
-                        <enabled>true</enabled>
-                </releases>
-        </repository>
-
-        <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/bitcoder/*</url>
-            <snapshots>
-            <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
 </project>
